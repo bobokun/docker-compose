@@ -1013,9 +1013,9 @@ services:
     networks:
       - proxynet
     restart: unless-stopped
-    user: ${PUID}:${PGID}
+    # user: ${PUID}:${PGID}
     volumes:
-      - ${CONF_PATH}/cross-seed/config:/config
+      - ${CONF_PATH}/cross-seed:/config
       - ${CONF_PATH}/qbittorrent/data/BT_backup/:/input:ro
       - ${DATA_PATH}/torrents:/data/torrents
   qbit-manage:
