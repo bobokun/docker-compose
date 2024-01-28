@@ -1,0 +1,1467 @@
+version: "3.8"
+
+services:
+# DATABASES
+
+## REDIS
+  redis:
+    container_name: redis
+    depends_on:
+      postgresql14:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 -p 6379 -a '${REDIS_PASSWORD}' ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    image: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+    command: "redis-server --requirepass ${REDIS_PASSWORD}"
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/redis/redis/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/redis:/data
+  redis-immich:
+    container_name: redis-immich
+    depends_on:
+      postgresql14-immich:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 -p 6379 -a '${REDIS_IMMICH_PASSWORD}' ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    image: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_IMMICH_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+    command: "redis-server --requirepass ${REDIS_IMMICH_PASSWORD}"
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/redis/redis/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/redis-immich:/data
+  redis-nextcloud:
+    container_name: redis-nextcloud
+    depends_on:
+      postgresql14:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 -p 6379 -a '${REDIS_NEXTCLOUD_PASSWORD}' ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    image: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_NEXTCLOUD_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+    command: "redis-server --requirepass ${REDIS_NEXTCLOUD_PASSWORD}"
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/redis/redis/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/redis-nextcloud:/data
+## POSTGRESQL
+  postgresql14:
+    container_name: postgresql14
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=${TZ}
+      - PGTZ="GMT-4"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    image: postgres:14
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=false"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/NCgNfC8/pgadmin.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://www.postgresql.org/docs/release/\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/NCgNfC8/pgadmin.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    # shm_size: 1g
+    #user: ${PUID}:${PGID}
+    volumes:
+      - ${CONF_PATH}/postgresql14:/var/lib/postgresql/data
+  postgresql14-immich:
+    container_name: postgresql14-immich
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=${TZ}
+      - PGTZ="GMT-4"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    image: tensorchord/pgvecto-rs:pg14-v0.1.11
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=false"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/NCgNfC8/pgadmin.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://www.postgresql.org/docs/release/\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/NCgNfC8/pgadmin.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    # shm_size: 1g
+    #user: ${PUID}:${PGID}
+    volumes:
+      - ${CONF_PATH}/postgresql14-immich:/var/lib/postgresql/data
+
+# DATABASE BACKUP AND MAINTENANCE
+  pgbackups-immich:
+    container_name: pgbackups-immich
+    depends_on:
+      postgresql14-immich:
+        condition: service_healthy
+    environment:
+      - BACKUP_DIR:/backups
+      - POSTGRES_HOST=postgresql14-immich
+      - POSTGRES_DB=immich
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=8080
+    image: prodrigestivill/postgres-backup-local
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/Muwahhidun/logo/blob/main/logo%20backup.png?raw=true"
+      #- "org.hotio.pullio.author.url={\"link\": \"https://github.com/linuxserver/docker-webtop/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/Muwahhidun/logo/blob/main/logo%20backup.png?raw=true"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - /mnt/user/backup/postgresql/immich:/backups
+      - ${CONF_PATH}/pgbackups/immich:/var/lib/postgresql/data
+  pgbackups:
+    container_name: pgbackups
+    depends_on:
+      postgresql14:
+        condition: service_healthy
+    environment:
+      - BACKUP_DIR:/backups
+      - POSTGRES_HOST=postgresql14
+      - POSTGRES_DB=authentik nextcloud_db paperless recipes uptimekuma
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=8080
+    image: prodrigestivill/postgres-backup-local
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/Muwahhidun/logo/blob/main/logo%20backup.png?raw=true"
+      #- "org.hotio.pullio.author.url={\"link\": \"https://github.com/linuxserver/docker-webtop/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/Muwahhidun/logo/blob/main/logo%20backup.png?raw=true"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - /mnt/user/backup/postgresql/postgres:/backups
+      - ${CONF_PATH}/pgbackups/postgres:/var/lib/postgresql/data
+  adminer:
+    container_name: adminer
+    environment:
+      - ADMINER_DESIGN=dracula
+    image: adminer
+    ports:
+      - 8082:8080
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/adminer.png"
+      #- "org.hotio.pullio.author.url={\"link\": \"https://github.com/linuxserver/docker-webtop/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/adminer.png"
+      - "net.unraid.docker.webui=http://${IP}:8082"
+    networks:
+      - proxynet
+# SECURITY
+  swag:
+    cap_add:
+      - NET_ADMIN
+    extra_hosts:
+      - ${URL}:127.0.0.1
+    container_name: swag
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+      - TZ=${TZ}
+      - URL=${URL}
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare
+      - EMAIL=${EMAIL}
+      - ONLY_SUBDOMAINS=false
+      - MAXMINDDB_LICENSE_KEY=${MAXMINDDB_KEY}
+      - DOCKER_MODS=linuxserver/mods:swag-cloudflare-real-ip|linuxserver/mods:swag-f2bdiscord|linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-maxmind|linuxserver/mods:swag-dashboard|ghcr.io/themepark-dev/theme.park:swag
+      - DISC_HOOK=${DISC_HOOK}
+      - DISC_ME=${DISC_ME}
+      - DISC_API=${DISC_API}
+      - TP_BRANCH=live
+    image: lscr.io/linuxserver/swag
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/nw5w038/swag.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/linuxserver/docker-swag/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/nw5w038/swag.png"
+      - "net.unraid.docker.webui=http://${IP}:8983"
+    networks:
+      - proxynet
+    ports:
+      - 443:443
+      - 80:80
+      - 8983:81 # dashboard
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/swag:/config
+      - ${CONF_PATH}/swag/config/log/debug:/var/log/letsencrypt
+      - ${CONF_PATH}/recipes/media/recipes/:/media/recipes:rw
+      - ${CONF_PATH}/overseerr/logs/:/log/overseerr:ro
+      - ${CONF_PATH}/bitwarden/vaultwarden.log:/log/vaultwarden/vaultwarden.log:ro
+      - ${CONF_PATH}/jellyfin/log/:/log/jellyfin:ro
+      - /mnt/user/nextcloud/:/log/nextcloud:ro
+  cloudflared:
+    container_name: CloudflaredTunnel
+    environment:
+      - test=yes
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/Joey291/unraid-templates/raw/main/templates/cloudflare-icon.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/cloudflare/cloudflared/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/Joey291/unraid-templates/raw/main/templates/cloudflare-icon.png"
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CF_TOKEN}
+    networks:
+      - proxynet
+  authentik-server:
+    container_name: authentik-server
+    environment:
+      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql14
+      - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_POSTGRES_USER}
+      - AUTHENTIK_POSTGRESQL__NAME=${AUTHENTIK_POSTGRES_DB}
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=true
+      - GEOIPUPDATE_ACCOUNT_ID=${GEOIPUPDATE_ACCOUNT_ID}
+      - GEOIPUPDATE_LICENSE_KEY=${GEOIPUPDATE_LICENSE_KEY}
+      - AUTHENTIK_AUTHENTIK__GEOIP=/geoip/GeoLite2-City.mmdb
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_REDIS__PASSWORD=${REDIS_PASSWORD}
+      - AUTHENTIK_REDIS__DB=1
+      - AUTHENTIK_EMAIL__HOST=${AUTHENTIK_EMAIL__HOST}
+      - AUTHENTIK_EMAIL__PORT=${AUTHENTIK_EMAIL__PORT}
+      - AUTHENTIK_EMAIL__USERNAME=${EMAIL2}
+      - AUTHENTIK_EMAIL__PASSWORD=${AUTHENTIK_EMAIL__PASSWORD}
+      - AUTHENTIK_EMAIL__USE_TLS=true
+      - AUTHENTIK_EMAIL__USE_SSL=false
+      - AUTHENTIK_EMAIL__TIMEOUT=10
+      - AUTHENTIK_EMAIL__FROM=${EMAIL}
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik/authentik.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/goauthentik/authentik/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik/authentik.png"
+      # - "net.unraid.docker.webui='http://[IP]:[PORT:9000]"
+    # ports:
+    #   - 9000:9000/tcp
+    #   - 9443:9443/tcp
+    depends_on:
+      - postgresql14
+      - redis
+    volumes:
+      - ${CONF_PATH}/authentik/geoip:/geoip
+      - ${CONF_PATH}/authentik/templates:/templates
+      - ${CONF_PATH}/authentik/media:/media
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${CONF_PATH}/authentik/media/backgrounds/3dUgoAf.jpeg:/web/dist/assets/images/flow_background.jpg'
+    restart: unless-stopped
+    image: ghcr.io/goauthentik/server
+    command: server
+    networks:
+      - proxynet
+  authentik-worker:
+    container_name: authentik-worker
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql14
+      - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_POSTGRES_USER}
+      - AUTHENTIK_POSTGRESQL__NAME=${AUTHENTIK_POSTGRES_DB}
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=true
+      - GEOIPUPDATE_ACCOUNT_ID=${GEOIPUPDATE_ACCOUNT_ID}
+      - GEOIPUPDATE_LICENSE_KEY=${GEOIPUPDATE_LICENSE_KEY}
+      - AUTHENTIK_AUTHENTIK__GEOIP=/geoip/GeoLite2-City.mmdb
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_REDIS__PASSWORD=${REDIS_PASSWORD}
+      - AUTHENTIK_REDIS__DB=1
+      - AUTHENTIK_EMAIL__HOST=${AUTHENTIK_EMAIL__HOST}
+      - AUTHENTIK_EMAIL__PORT=${AUTHENTIK_EMAIL__PORT}
+      - AUTHENTIK_EMAIL__USERNAME=${EMAIL2}
+      - AUTHENTIK_EMAIL__PASSWORD=${AUTHENTIK_EMAIL__PASSWORD}
+      - AUTHENTIK_EMAIL__USE_TLS=true
+      - AUTHENTIK_EMAIL__USE_SSL=false
+      - AUTHENTIK_EMAIL__TIMEOUT=10
+      - AUTHENTIK_EMAIL__FROM=${EMAIL}
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/goauthentik/authentik/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
+    depends_on:
+      - postgresql14
+      - redis
+    volumes:
+      - ${CONF_PATH}/authentik/geoip:/geoip
+      - ${CONF_PATH}/authentik/templates:/templates
+      - ${CONF_PATH}/authentik/media:/media
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    image: ghcr.io/goauthentik/server
+    command: worker
+    networks:
+      - proxynet
+  authentik-ldap:
+    container_name: authentik-ldap
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+      - AUTHENTIK_TOKEN=${AUTHENTIK_TOKEN}
+      - AUTHENTIK_HOST=${AUTHENTIK_HOST}
+      - AUTHENTIK_INSECURE=false
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/goauthentik/authentik/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
+    depends_on:
+      - postgresql14
+      - redis
+    ports:
+      - 389:3389/tcp
+      - 636:6636/tcp
+    restart: unless-stopped
+    image: ghcr.io/goauthentik/ldap
+    networks:
+      - proxynet
+  vaultwarden:
+    container_name: vaultwarden
+    environment:
+      - TZ=${TZ}
+      - HOST_CONTAINERNAME=vaultwarden
+      - DOMAIN=${VAULTWARDEN_DOMAIN}
+      - SERVER_ADMIN_EMAIL=${EMAIL2}
+      - WEBSOCKET_ENABLED=true
+      - LOG_LEVEL=warn
+      - EXTENDED_LOGGING=true
+      - LOG_FILE=/data/vaultwarden.log
+      - YUBICO_CLIENT_ID=${YUBICO_CLIENT_ID}
+      - YUBICO_SECRET_KEY=${YUBICO_SECRET_KEY}
+    image: vaultwarden/server:latest
+    ports:
+      - 8081:80/tcp
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/nMXr6fh/bitwarden.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/dani-garcia/vaultwarden/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/nMXr6fh/bitwarden.png"
+      - "net.unraid.docker.webui=http://${IP}:8081"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/bitwarden:/data
+  dockersocket:
+    container_name: dockersocket
+    privileged: true
+    environment:
+      - CONTAINERS=1
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/WnBdBh0/docker-sock.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Tecnativa/docker-socket-proxy/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/WnBdBh0/docker-sock.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  dozzle:
+    container_name: dozzle
+    environment:
+      - DOZZLE_REMOTE_HOST=tcp://dockersocket:2375|unNAS,${DOZZLE_REMOTE_HOST_QSB}|qsb
+      - DOZZLE_NO_ANALYTICS=true
+      - DOZZLE_HOSTNAME=unNAS
+    image: amir20/dozzle
+    hostname: unNAS
+    ports:
+      - 8888:8080
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/fxHzwwS/dozzle.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/amir20/dozzle/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/fxHzwwS/dozzle.png"
+      - "net.unraid.docker.webui=http://${IP}:8888"
+    networks:
+      - proxynet
+    restart: unless-stopped
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma
+    ports:
+      - 4001:3001/tcp
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/CorneliousJD/Docker-Templates/master/icons/uptimekuma.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/louislam/uptime-kuma/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/CorneliousJD/Docker-Templates/master/icons/uptimekuma.png"
+      - "net.unraid.docker.webui=http://${IP}:4001"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/uptimekuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  # diskspeed:
+  #   container_name: diskspeed
+  #   image: jbartlett777/diskspeed
+  #   ports:
+  #     - 18888:8888/tcp
+  #   labels:
+  #     - "org.hotio.pullio.notify=true"
+  #     - "org.hotio.pullio.update=true"
+  #     - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+  #     - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
+  #     # - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Tecnativa/docker-socket-proxy/releases\", \"label\": \"changelog\"}"
+  #     - "net.unraid.docker.icon=https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
+  #     - "net.unraid.docker.webui=http://${IP}:18888"
+  #   network_mode: bridge
+  #   volumes:
+  #     - ${CONF_PATH}/DiskSpeed/:/tmp/DiskSpeed
+  #     - /mnt:/mnt/UNRAID
+  #     - /var/local/emhttp:/var/local/emhttp:ro
+# CLOUD
+  immich:
+    container_name: immich
+    depends_on:
+      postgresql14-immich:
+        condition: service_healthy
+      redis-immich:
+        condition: service_started
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - DB_HOSTNAME=${POSTGRES_IMMICH_HOST}
+      - DB_USERNAME=${POSTGRES_IMMICH_USER}
+      - DB_PASSWORD=${POSTGRES_IMMICH_PASSWORD}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=${REDIS_IMMICH_HOST}
+      - REDIS_PASSWORD=${REDIS_IMMICH_PASSWORD}
+      - DISABLE_MACHINE_LEARNING=false
+      - DISABLE_TYPESENSE=false     
+    image: ghcr.io/imagegenius/immich:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/myBS6Q2/immich.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/imagegenius/docker-immich/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/myBS6Q2/immich.png"
+    networks:
+      - proxynet
+    ports:
+      - 8080:8080/tcp
+    restart: unless-stopped
+    volumes:     
+      - ${CONF_PATH}/immich:/config
+      - ${PHOTOS_PATH}/immich/Immich:/photos
+  nextcloud:
+    container_name: nextcloud
+    image: lscr.io/linuxserver/nextcloud:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+    ports:
+      - 448:443/tcp
+    volumes:
+      - /mnt/user0/nextcloud/:/data
+      - ${CONF_PATH}/nextcloud:/config
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/nextcloud-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/nextcloud/server/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/nextcloud-logo.png"
+      - "net.unraid.docker.webui=http://${IP}:448"
+    networks:
+      - proxynet
+  paperless-ngx:
+    container_name: paperless-ngx
+    image: ghcr.io/paperless-ngx/paperless-ngx
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - gotenberg
+      - tika
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${CONF_PATH}/paperless-ngx/data:/usr/src/paperless/data
+      - /mnt/user/Paperless/media:/usr/src/paperless/media
+      - /mnt/user/Paperless/consume:/usr/src/paperless/consume
+      - /mnt/user/Paperless/export:/usr/src/paperless/export
+    environment:
+      - PAPERLESS_REDIS=redis://:${REDIS_PASSWORD}@redis:6379
+      - PAPERLESS_FILENAME_FORMAT={created_year}/{correspondent}/{document_type}_{created_year}{created_month}_{correspondent}_{tag_list}
+      - PAPERLESS_TIME_ZONE=${TZ}
+      - PAPERLESS_DBHOST=postgresql14
+      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
+      - PAPERLESS_URL=${PAPERLESS_URL}
+      - PAPERLESS_ALLOWED_HOSTS=${PAPERLESS_ALLOWED_HOSTS}
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_MAIL=${EMAIL2}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      - PAPERLESS_TIKA_ENABLED=1
+      - PAPERLESS_TIKA_ENDPOINT=http://tika:9998
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://gotenberg:3000
+      - PAPERLESS_ENABLE_HTTP_REMOTE_USER=true
+      - PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME=HTTP_X_AUTHENTIK_USERNAME
+      - PAPERLESS_IGNORE_DATES=${PAPERLESS_IGNORE_DATES}
+      - PAPERLESS_CONSUMER_POLLING=0
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY}
+      - USERMAP_UID=${PUID}
+      - USERMAP_GID=${PGID}
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/paperless.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/paperless-ngx/paperless-ngx/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/paperless.png"
+      - "net.unraid.docker.webui=http://${IP}:8000"
+    networks:
+      - proxynet
+
+  gotenberg:
+    container_name: gotenberg
+    image: docker.io/gotenberg/gotenberg:7.10
+    restart: unless-stopped
+    # The gotenberg chromium route is used to convert .eml files. We do not
+    # want to allow external content like tracking pixels or even javascript.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-disable-routes=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://user-images.githubusercontent.com/8983173/130322857-185831e2-f041-46eb-a17f-0a69d066c4e5.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/gotenberg/gotenberg/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://user-images.githubusercontent.com/8983173/130322857-185831e2-f041-46eb-a17f-0a69d066c4e5.png"
+    networks:
+      - proxynet
+
+  tika:
+    container_name: tika
+    image: ghcr.io/paperless-ngx/tika:latest
+    restart: unless-stopped
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://tika.apache.org/tika.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/apache/tika/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://tika.apache.org/tika.png"
+    networks:
+      - proxynet
+  stirlingpdf:
+    container_name: stirlingpdf
+    image: frooodle/s-pdf:latest
+    restart: unless-stopped
+    environment:
+      - SYSTEM_GOOGLEVISIBILITY=false
+      - SYSTEM_DEFAULT_LOCALE=en_GB
+      - DOCKER_ENABLE_SECURITY=false
+      - METRICS_ENABLED=true
+      - SYSTEM_CONNECTIONTIMEOUTMINUTES=3000000
+      - SYSTEM_ROOT_URI_PATH=/
+    ports:
+      - 9090:8080/tcp
+    volumes:
+      - ${CONF_PATH}/Stirling-PDF/OCR:/usr/share/tesseract-ocr/4.00/tessdata
+      - ${CONF_PATH}/Stirling-PDF/configs/:/configs
+      - ${CONF_PATH}/Stirling-PDF/customFiles:/customFiles
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Stirling-Tools/Stirling-PDF/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
+      - "net.unraid.docker.webui=http://${IP}:9090"
+    networks:
+      - proxynet
+# AUTOMATION
+  openvscode-server:
+    container_name: openvscode-server
+    image: lscr.io/linuxserver/openvscode-server
+    restart: unless-stopped
+    environment:
+      - SUDO_PASSWORD=${OPENVSCODE_SUDO_PASSWORD}
+      - DOCKER_MODS=linuxserver/mods:code-server-python3|linuxserver/mods:universal-docker|linuxserver/mods:code-server-zsh|linuxserver/mods:universal-package-install
+      - INSTALL_PACKAGES=vim|tox
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+    ports:
+      - 3001:3000/tcp
+    volumes:
+      - ${CONF_PATH}/qbittorrent/:/qbittorrent/:ro
+      - ${CONF_PATH}/:/appdata
+      - /mnt/user/Projects/:/Projects
+      - ${DATA_PATH}/torrents/:/qbm/torrents
+      - ${CONF_PATH}/cross-seed/output/:/cross-seed/output/
+      - ${CONF_PATH}/openvscode-server:/config
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/openvscode-server-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/gitpod-io/openvscode-server/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/openvscode-server-logo.png"
+      - "net.unraid.docker.webui=http://${IP}:3001"
+    networks:
+      - proxynet
+  browserless:
+    container_name: browserless
+    image: ghcr.io/browserless/chrome
+    restart: unless-stopped
+    shm_size: 2G
+    environment:
+      - CONNECTION_TIMEOUT=60000
+      - ENABLE_DEBUGGER=false
+      - PREBOOT_CHROME=true
+      - DEMO_MODE=false
+      - MAX_CONCURRENT_SESSIONS=10
+      - CHROME_REFRESH_TIME=3600000
+      - DEFAULT_STEALTH=true
+    ports:
+      - 3002:3000/tcp
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/browserless/browserless/blob/main/static/favicon-32x32.png?raw=true"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/browserless/browserless/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/browserless/browserless/blob/main/static/favicon-32x32.png?raw=true"
+      - "net.unraid.docker.webui=http://${IP}:3002"
+    networks:
+      - proxynet
+  changedetection:
+    container_name: changedetection
+    image: dgtlmoon/changedetection.io
+    restart: unless-stopped
+    environment:
+      - BASE_URL=https://change.${URL}
+      - PLAYWRIGHT_DRIVER_URL=ws://browserless:3000/?stealth
+    ports:
+      - 5001:5000/tcp
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/dgtlmoon/changedetection.io/blob/master/changedetectionio/static/favicons/android-chrome-256x256.png?raw=true"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/dgtlmoon/changedetection.io/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/dgtlmoon/changedetection.io/blob/master/changedetectionio/static/favicons/android-chrome-256x256.png?raw=true"
+      - "net.unraid.docker.webui=http://${IP}:5001"
+    volumes:
+      - ${CONF_PATH}/changedetection:/datastore
+    networks:
+      - proxynet
+# MEDIA
+  calibre:
+    container_name: calibre
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: lscr.io/linuxserver/calibre:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/calibre-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/kovidgoyal/calibre/blob/master/Changelog.txt\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/calibre-logo.png"
+      - "net.unraid.docker.webui=http://${IP}:9080"
+    networks:
+      - proxynet
+    ports:
+      - 9080:8080/tcp # desktop GUI
+      # - 9081:8081/tcp # webserver GUI
+    restart: unless-stopped
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      - ${DATA_PATH}/media/Books/Ebooks:/data/media/Books/Ebooks
+      - ${CONF_PATH}/calibre:/config
+  calibre-web:
+    container_name: calibre-web
+    environment:
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+      - DOCKER_MODS=linuxserver/mods:universal-calibre|linuxserver/mods:calibre-web-dtrpg-metadata|ghcr.io/gilbn/theme.park:calibre-web
+      - OAUTHLIB_INSECURE_TRANSPORT=1
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: lscr.io/linuxserver/calibre-web:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/calibre-web-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/janeczku/calibre-web/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/calibre-web-logo.png"
+      - "net.unraid.docker.webui=http://${IP}:9083"
+    networks:
+      - proxynet
+    ports:
+      - 9083:8083/tcp
+    restart: unless-stopped
+    volumes:
+      - ${DATA_PATH}/media/Books/Ebooks:/books
+      - ${CONF_PATH}/calibre-web:/config
+      - ${CONF_PATH}/calibre-web/gmail.json:/app/calibre-web/gmail.json:ro
+  jellyfin:
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/jellyfin:release
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/jellyfin.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/jellyfin/jellyfin/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/jellyfin.png"
+      - "net.unraid.docker.webui=http://${IP}:8096"
+    networks:
+      - proxynet
+    ports:
+      - 8096:8096/tcp
+    restart: unless-stopped
+    devices:
+      - /dev/dri
+    volumes:
+      - ${CONF_PATH}/jellyfin:/config
+      - ${DATA_PATH}/media:/data/media:ro
+      - /dev/shm:/transcode
+      - /mnt/cache/Metadata/jellyfin/data/metadata:/config/data/metadata
+  overseerr:
+    container_name: overseerr
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - UMASK=${UMASK}
+      - TZ=${TZ}
+    image: ghcr.io/hotio/overseerr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/overseerr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/sct/overseerr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/overseerr.png"
+      - "net.unraid.docker.webui=http://${IP}:5055"
+    ports:
+      - "5055:5055"
+    networks:
+      - proxynet
+    volumes:
+      - ${CONF_PATH}/overseerr:/config
+  jellyseerr:
+    container_name: jellyseerr
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - UMASK=${UMASK}
+      - TZ=${TZ}
+    image: ghcr.io/hotio/jellyseerr
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/jellyseerr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Fallenbagel/jellyseerr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/jellyseerr.png"
+      - "net.unraid.docker.webui=http://${IP}:5056"
+    ports:
+      - 5056:5055/tcp
+    networks:
+      - proxynet
+    volumes:
+      - ${CONF_PATH}/jellyseerr:/config
+  plex-meta-manager:
+    container_name: PlexMetaManager
+    environment:
+      - PMM_TIME=6:30, 18:30
+      - PMM_DIVIDER==
+      - PMM_WIDTH=200
+      - TZ=${TZ}
+    image: meisnate12/plex-meta-manager
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager/master/docs/_static/favicon.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/meisnate12/Plex-Meta-Manager/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager/master/docs/_static/favicon.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    volumes:
+      - ${CONF_PATH}/PlexMetaManager:/config
+  tautulli:
+    container_name: tautulli
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/tautulli:testing
+    ports:
+      - 8181:8181/tcp
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/tautulli.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Tautulli/Tautulli/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/tautulli.png"
+      - "net.unraid.docker.webui=http://${IP}:8181"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/tautulli:/config
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-tautulli:/etc/cont-init.d/99-themepark:ro
+  doplarr:
+    container_name: doplarr
+    environment:
+      - DISCORD__TOKEN=${DISCORD__TOKEN}
+      - DISCORD__REQUESTED_MSG_STYLE=:plain
+      - DISCORD__MAX_RESULTS=25
+      - OVERSEERR__URL=http://overseerr:5055
+      - OVERSEERR__API=${OVERSEERR__API}
+      - PARTIAL_SEASONS=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/doplarr:release
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/doplarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/kiranshila/Doplarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/doplarr.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/doplarr:/config
+# DOWNLOADS
+  qbittorrent:
+    container_name: qbittorrent
+    image: ghcr.io/hotio/qbittorrent:legacy
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail https://icanhazip.com || exit 1
+      interval: 15s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    environment:
+      - VPN_ENABLED=false
+      # - VPN_LAN_NETWORK=
+      # - VPN_ADDITIONAL_PORTS=
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+    ports:
+      - 83:8080/tcp
+      - ${QBT_PORT}:${QBT_PORT}/tcp
+      - ${QBT_PORT}:${QBT_PORT}/udp
+    volumes:
+      - ${CONF_PATH}/qbittorrent:/config
+      - ${DATA_PATH}/torrents:/data/torrents
+      # - ${CONF_PATH}/theme-park/docker-mods/98-themepark-qbittorrent:/etc/cont-init.d/99-themepark:ro
+      # - ${CONF_PATH}/qbittorrent/custom-cont-init.d/99-install-woq.sh:/etc/cont-init.d/99-install-woq:ro
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/qbittorrent.png"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/qbittorrent.png"
+      - "net.unraid.docker.webui=http://${IP}:83"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - proxynet
+  cross-seed:
+    command: daemon
+    container_name: cross-seed
+    depends_on:
+      - qbittorrent
+      - prowlarr
+    environment:
+      - TZ=${TZ}
+    image: crossseed/cross-seed:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://i.ibb.co/Ptyx6sC/crossseed.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/mmgoodnow/cross-seed/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://i.ibb.co/Ptyx6sC/crossseed.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    volumes:
+      - ${CONF_PATH}/cross-seed/config:/config
+      - ${CONF_PATH}/qbittorrent/data/BT_backup/:/input:ro
+      - ${DATA_PATH}/torrents:/data/torrents
+  qbit-manage:
+    container_name: qbit-manage
+    environment:
+      - QBT_SCHEDULE=360
+      - QBT_STARTUP_DELAY=30
+      - QBT_CONFIG=config.yml
+      - QBT_LOGFILE=/config/logs/qbitmanage.log
+      - QBT_DEBUG=True
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/qbitmanage:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/qbitmanage.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/StuffAnThings/qbit_manage/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/qbitmanage.png"
+    networks:
+      - proxynet
+    restart: on-failure:2
+    volumes:
+      - ${DATA_PATH}/torrents:/data/torrents
+      - ${CONF_PATH}/qbittorrent:/qbittorrent:ro
+      - ${CONF_PATH}/qbit_manage:/config
+# *Arrs
+  notifiarr:
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    container_name: notifiarr
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+      - /dev/sde:/dev/sde
+      - /dev/sdf:/dev/sdf
+      - /dev/sdg:/dev/sdg
+      - /dev/sdh:/dev/sdh
+      - /dev/sdi:/dev/sdi
+      - /dev/sdj:/dev/sdj
+      - /dev/sdk:/dev/sdk
+      - /dev/sdl:/dev/sdl
+      - /dev/sdm:/dev/sdm
+      # - /dev/sdn:/dev/sdn
+      # - /dev/sdo:/dev/sdo
+      # - /dev/sdp:/dev/sdp
+      # - /dev/sdq:/dev/sdq
+      - /dev/nvme0n1:/dev/nvme0n1 # cache
+      - /dev/nvme1n1:/dev/nvme1n1 # cache
+      - /dev/nvme2n1:/dev/nvme2n1 # scratch
+    environment:
+      - TZ=${TZ}
+      - DN_API_KEY=${DN_API_KEY}
+      - DN_PLEX_TOKEN=${PLEX_TOKEN}
+      - DN_PLEX_URL=${PLEX_URL}
+      - DN_LOG_FILE=/config/app.log
+      - DN_HTTP_LOG=/config/http.log
+    hostname: unNAS
+    # image: golift/notifiarr:unstable
+    image: golift/notifiarr:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://avatars.githubusercontent.com/u/77931263?s=200&v=4"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Notifiarr/notifiarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://avatars.githubusercontent.com/u/77931263?s=200&v=4"
+      - "net.unraid.docker.webui=http://${IP}:5454"
+    networks:
+      - proxynet
+    ports: 
+      - 5454:5454
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/Notifiarr:/config
+      - /var/run/utmp:/var/run/utmp:ro
+      - /mnt/user:/storage/1:ro
+  prowlarr:
+    container_name: prowlarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/prowlarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/prowlarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Prowlarr/Prowlarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/prowlarr.png"
+      - "net.unraid.docker.webui=http://${IP}:9696"
+    ports: 
+      - 9696:9696/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/prowlarr:/config
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-prowlarr:/etc/cont-init.d/99-themepark
+  bazarr:
+    container_name: bazarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/bazarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/bazarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/morpheus65535/bazarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/bazarr.png"
+      - "net.unraid.docker.webui=http://${IP}:6767"
+    ports: 
+      - 6767:6767/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/bazarr:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-bazarr:/etc/cont-init.d/99-themepark
+  bazarr-4k:
+    container_name: bazarr-4k
+    environment:
+      - TP_HOTIO=true
+      - TP_THEME=hotline
+      - TP_ADDON=bazarr-4k-logo
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/bazarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/GilbN/theme.park/master/css/addons/bazarr/bazarr-4k-logo/bazarr4k.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/morpheus65535/bazarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/GilbN/theme.park/master/css/addons/bazarr/bazarr-4k-logo/bazarr4k.png"
+      - "net.unraid.docker.webui=http://${IP}:6768"
+    ports: 
+      - 6768:6767/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/bazarr-4k:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-bazarr:/etc/cont-init.d/99-themepark
+  radarr:
+    container_name: radarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/radarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/radarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Radarr/Radarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/radarr.png"
+      - "net.unraid.docker.webui=http://${IP}:7878"
+    ports: 
+      - 7878:7878/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/radarr:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-radarr:/etc/cont-init.d/99-themepark
+  radarr-4k:
+    container_name: radarr-4k
+    environment:
+      - TP_HOTIO=true
+      - TP_THEME=hotline
+      - TP_ADDON=radarr-4k-logo
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/radarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/GilbN/theme.park/blob/master/css/addons/radarr/radarr-4k-logo/radarr-v3-mobile.png?raw=true"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/morpheus65535/radarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/GilbN/theme.park/blob/master/css/addons/radarr/radarr-4k-logo/radarr-v3-mobile.png?raw=true"
+      - "net.unraid.docker.webui=http://${IP}:7879"
+    ports: 
+      - 7879:7878/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/radarr-4k:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-radarr:/etc/cont-init.d/99-themepark
+  sonarr:
+    container_name: sonarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/sonarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/sonarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/sonarr/sonarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/sonarr.png"
+      - "net.unraid.docker.webui=http://${IP}:8989"
+    ports: 
+      - 8989:8989/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/sonarr:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-sonarr:/etc/cont-init.d/99-themepark
+  lidarr:
+    container_name: lidarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/lidarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/lidarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/lidarr/lidarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/lidarr.png"
+      - "net.unraid.docker.webui=http://${IP}:8686"
+    ports: 
+      - 8686:8686/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/lidarr:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-lidarr:/etc/cont-init.d/99-themepark  
+  readarr:
+    container_name: readarr
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/hotio/readarr:nightly
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://hotio.dev/webhook-avatars/readarr.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/readarr/readarr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://hotio.dev/webhook-avatars/readarr.png"
+      - "net.unraid.docker.webui=http://${IP}:8787"
+    ports: 
+      - 8787:8787/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/readarr:/config
+      - ${DATA_PATH}:/data
+      - ${CONF_PATH}/theme-park/docker-mods/98-themepark-readarr:/etc/cont-init.d/99-themepark
+# Websites
+  moviematch:
+    container_name: moviematch
+    environment:
+      - PLEX_URL=${PLEX_URL}
+      - PLEX_TOKEN=${PLEX_TOKEN}
+      - LIBRARY_FILTER=Movies
+    image: lukechannings/moviematch
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://github.com/LukeChannings/moviematch/blob/main/web/app/static/icons/icon-180.png?raw=true"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/LukeChannings/moviematch/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://github.com/LukeChannings/moviematch/blob/main/web/app/static/icons/icon-180.png?raw=true"
+      - "net.unraid.docker.webui=http://${IP}:8083"
+    ports: 
+      - 8083:8000/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+  pasta:
+    container_name: pasta
+    image: cglatot/pasta
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://www.pastatool.com/images/android-chrome-512.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/cglatot/pasta/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://www.pastatool.com/images/android-chrome-512.png"
+      - "net.unraid.docker.webui=http://${IP}:8087"
+    ports: 
+      - 8087:80/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+  recipes:
+    container_name: recipes
+    environment:
+      - TP_HOTIO=true
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+      - DB_ENGINE=django.db.backends.postgresql
+      - SECRET_KEY=${RECIPES_SECRET}
+      - ALLOWED_HOSTS=*
+      - COMMENT_PREF_DEFAULT=1
+      - SHOPPING_MIN_AUTOSYNC_INTERVAL=5
+      - AUTH_LDAP_SERVER_URI=${LDAP_SERVER}
+      - AUTH_LDAP_BIND_DN=CN
+      - LDAP_AUTH=1
+      - AUTH_LDAP_BIND_PASSWORD=${LDAP_PASSWORD}
+      - AUTH_LDAP_USER_SEARCH_BASE_DN=ou
+      - AUTH_LDAP_ALWAYS_UPDATE_USER=1
+      - AUTH_LDAP_USER_SEARCH_FILTER_STR=${LDAP_SEARCH_FILTER}
+      - AUTH_LDAP_USER_ATTR_MAP=${LDAP_USER_ATTR_MAP}
+      - REMOTE_USER_AUTH=1
+      - DEBUG=0
+      - GUNICORN_MEDIA=0
+      - POSTGRES_HOST=postgresql14
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${RECIPES_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${RECIPES_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${RECIPES_POSTGRES_DB}
+    image: vabene1111/recipes
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/CorneliousJD/Docker-Templates/master/icons/recipes.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/TandoorRecipes/recipes/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/CorneliousJD/Docker-Templates/master/icons/recipes.png"
+      - "net.unraid.docker.webui=http://${IP}:8154"
+    ports: 
+      - 8154:8080/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/recipes/data:/data
+      - ${CONF_PATH}/recipes/media:/opt/recipes/mediafiles/
+      - ${CONF_PATH}/recipes/staticfiles:/opt/recipes/staticfiles
+      - ${CONF_PATH}/recipes/nginx/conf.d:/opt/recipes/nginx/conf.d
+  wrapperr:
+    container_name: wrapperr
+    image: ghcr.io/aunefyren/wrapperr:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/ibracorp/app-logos/main/plex-wrapped/plex_wrapped.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/aunefyren/wrapperr/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/plex-wrapped/plex_wrapped.png"
+      - "net.unraid.docker.webui=http://${IP}:8282"
+    ports: 
+      - 8282:8282/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/wrapperr:/app/config
+# OTHER
+  thelounge:
+    container_name: thelounge
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: lscr.io/linuxserver/thelounge:latest
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/thelounge.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/thelounge/thelounge/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/thelounge.png"
+      - "net.unraid.docker.webui=http://${IP}:9001"
+    ports: 
+      - 9001:9000/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/thelounge:/config
+  theme-park:
+    container_name: theme-park
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+    image: ghcr.io/themepark-dev/theme.park
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/themepark.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/themepark-dev/theme.park/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/themepark.png"
+      - "net.unraid.docker.webui=http://${IP}:7080"
+    ports: 
+      - 7080:80/tcp
+      - 7443:443/tcp
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/theme-park:/config
+networks:
+  proxynet:
+    external: true
