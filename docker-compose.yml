@@ -672,10 +672,30 @@ services:
       - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
       - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Stirling-Tools/Stirling-PDF/releases\", \"label\": \"changelog\"}"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
-      - "net.unraid.docker.webui=http://${IP}:9090"
+      
     networks:
       - proxynet
 # AUTOMATION
+  kijiji-manager:
+    container_name: kijiji-manager
+    build:
+      dockerfile: ${PROJECTS_PATH}/kijiji-manager/Dockerfile
+      context: ${PROJECTS_PATH}/kijiji-manager
+    image: kijiji-manager
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+    volumes:
+      - ${CONF_PATH}/kijiji_manager:/app/instance
+    labels:
+      - "net.unraid.docker.webui=http://${IP}:5000"
+      - net.unraid.docker.icon='https://play-lh.googleusercontent.com/EuVHIp1ZrYHU2his9XBrHhuRQ1EHF6SDe_OUsmsu8VaAL_Q2kycOeQ7rg2XxcuGGPQ'
+    ports:
+      - 5000:80
+    networks:
+      - proxynet
+
   openvscode-server:
     container_name: openvscode-server
     image: lscr.io/linuxserver/openvscode-server
