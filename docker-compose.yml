@@ -672,7 +672,7 @@ services:
       - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
       - "org.hotio.pullio.author.url={\"link\": \"https://github.com/Stirling-Tools/Stirling-PDF/releases\", \"label\": \"changelog\"}"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/Frooodle/Stirling-PDF/main/src/main/resources/static/favicon.png"
-      
+      - "net.unraid.docker.webui=http://${IP}:9090"
     networks:
       - proxynet
 # AUTOMATION
