@@ -173,7 +173,7 @@ services:
       - proxynet
     restart: unless-stopped
     volumes:
-      - /mnt/user/backup/postgresql/immich:/backups
+      - ${BACKUP_PATH}/postgresql/immich:/backups
       - ${CONF_PATH}/pgbackups/immich:/var/lib/postgresql/data
   pgbackups:
     container_name: pgbackups
@@ -203,7 +203,7 @@ services:
       - proxynet
     restart: unless-stopped
     volumes:
-      - /mnt/user/backup/postgresql/postgres:/backups
+      - ${BACKUP_PATH}/postgresql/postgres:/backups
       - ${CONF_PATH}/pgbackups/postgres:/var/lib/postgresql/data
   adminer:
     container_name: adminer
@@ -367,8 +367,7 @@ services:
       - "org.hotio.pullio.author.url={\"link\": \"https://github.com/goauthentik/authentik/releases\", \"label\": \"changelog\"}"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
     depends_on:
-      - postgresql14
-      - redis
+      - authentik-server
     volumes:
       - ${CONF_PATH}/authentik/geoip:/geoip
       - ${CONF_PATH}/authentik/templates:/templates
@@ -396,8 +395,7 @@ services:
       - "org.hotio.pullio.author.url={\"link\": \"https://github.com/goauthentik/authentik/releases\", \"label\": \"changelog\"}"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
     depends_on:
-      - postgresql14
-      - redis
+      - authentik-server
     ports:
       - 389:3389/tcp
       - 636:6636/tcp
@@ -1453,10 +1451,10 @@ services:
       - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/themepark.png"
       - "org.hotio.pullio.author.url={\"link\": \"https://github.com/themepark-dev/theme.park/releases\", \"label\": \"changelog\"}"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/themepark.png"
-      - "net.unraid.docker.webui=http://${IP}:7080"
-    ports: 
-      - 7080:80/tcp
-      - 7443:443/tcp
+      # - "net.unraid.docker.webui=http://${IP}:7080"
+    # ports: 
+    #   - 7080:80/tcp
+    #   - 7443:443/tcp
     networks:
       - proxynet
     restart: unless-stopped
