@@ -584,7 +584,7 @@ services:
       - /mnt/user/Paperless/export:/usr/src/paperless/export
     environment:
       - PAPERLESS_REDIS=redis://:${REDIS_PASSWORD}@redis:6379
-      - PAPERLESS_FILENAME_FORMAT={created_year}/{correspondent}/{document_type}_{created_year}{created_month}_{correspondent}_{tag_list}
+      - PAPERLESS_FILENAME_FORMAT=${PAPERLESS_FILENAME_FORMAT}
       - PAPERLESS_TIME_ZONE=${TZ}
       - PAPERLESS_DBHOST=postgresql14
       - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
@@ -742,7 +742,7 @@ services:
     ports:
       - 3002:3000/tcp
     labels:
-      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.notify=false"
       - "org.hotio.pullio.update=true"
       - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
       - "org.hotio.pullio.author.avatar=https://github.com/browserless/browserless/blob/main/static/favicon-32x32.png?raw=true"
