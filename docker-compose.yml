@@ -88,6 +88,34 @@ services:
     restart: unless-stopped
     volumes:
       - ${CONF_PATH}/redis-nextcloud:/data
+  redis-authentik:
+    container_name: redis-authentik
+    depends_on:
+      postgresql14:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 -p 6379 -a '${REDIS_AUTHENTIK_PASSWORD}' ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    image: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_AUTHENTIK_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+    command: "redis-server --requirepass ${REDIS_AUTHENTIK_PASSWORD}"
+    labels:
+      - "org.hotio.pullio.notify=true"
+      - "org.hotio.pullio.update=true"
+      - "org.hotio.pullio.generic.webhook=${PULLIO_GENERIC_WEBHOOK}"
+      - "org.hotio.pullio.author.avatar=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+      - "org.hotio.pullio.author.url={\"link\": \"https://github.com/redis/redis/releases\", \"label\": \"changelog\"}"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/juusujanar/unraid-templates/master/img/Redis-logo.png"
+    networks:
+      - proxynet
+    restart: unless-stopped
+    volumes:
+      - ${CONF_PATH}/redis-authentik:/data
 ## POSTGRESQL
   postgresql14:
     container_name: postgresql14
@@ -288,7 +316,7 @@ services:
   authentik-server:
     container_name: authentik-server
     environment:
-      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_REDIS__HOST=redis-authentik
       - AUTHENTIK_POSTGRESQL__HOST=postgresql14
       - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_POSTGRES_USER}
       - AUTHENTIK_POSTGRESQL__NAME=${AUTHENTIK_POSTGRES_DB}
@@ -298,8 +326,8 @@ services:
       - GEOIPUPDATE_LICENSE_KEY=${GEOIPUPDATE_LICENSE_KEY}
       - AUTHENTIK_AUTHENTIK__GEOIP=/geoip/GeoLite2-City.mmdb
       - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
-      - AUTHENTIK_REDIS__PASSWORD=${REDIS_PASSWORD}
-      - AUTHENTIK_REDIS__DB=1
+      - AUTHENTIK_REDIS__PASSWORD=${REDIS_AUTHENTIK_PASSWORD}
+      # - AUTHENTIK_REDIS__DB=1
       - AUTHENTIK_EMAIL__HOST=${AUTHENTIK_EMAIL__HOST}
       - AUTHENTIK_EMAIL__PORT=${AUTHENTIK_EMAIL__PORT}
       - AUTHENTIK_EMAIL__USERNAME=${EMAIL2}
@@ -321,7 +349,7 @@ services:
     #   - 9443:9443/tcp
     depends_on:
       - postgresql14
-      - redis
+      - redis-authentik
     volumes:
       - ${CONF_PATH}/authentik/geoip:/geoip
       - ${CONF_PATH}/authentik/templates:/templates
@@ -339,7 +367,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - UMASK=${UMASK}
-      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_REDIS__HOST=redis-authentik
       - AUTHENTIK_POSTGRESQL__HOST=postgresql14
       - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_POSTGRES_USER}
       - AUTHENTIK_POSTGRESQL__NAME=${AUTHENTIK_POSTGRES_DB}
@@ -349,8 +377,8 @@ services:
       - GEOIPUPDATE_LICENSE_KEY=${GEOIPUPDATE_LICENSE_KEY}
       - AUTHENTIK_AUTHENTIK__GEOIP=/geoip/GeoLite2-City.mmdb
       - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
-      - AUTHENTIK_REDIS__PASSWORD=${REDIS_PASSWORD}
-      - AUTHENTIK_REDIS__DB=1
+      - AUTHENTIK_REDIS__PASSWORD=${REDIS_AUTHENTIK_PASSWORD}
+      # - AUTHENTIK_REDIS__DB=1
       - AUTHENTIK_EMAIL__HOST=${AUTHENTIK_EMAIL__HOST}
       - AUTHENTIK_EMAIL__PORT=${AUTHENTIK_EMAIL__PORT}
       - AUTHENTIK_EMAIL__USERNAME=${EMAIL2}
