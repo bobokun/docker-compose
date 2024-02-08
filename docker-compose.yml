@@ -695,6 +695,7 @@ services:
       - 5001:5000/tcp
     labels:
       <<: *pullio
+      org.hotio.pullio.notify: false
       org.hotio.pullio.author.avatar: "https://github.com/dgtlmoon/changedetection.io/blob/master/changedetectionio/static/favicons/android-chrome-256x256.png?raw=true"
       org.hotio.pullio.author.url: "{\"link\": \"https://github.com/dgtlmoon/changedetection.io/releases\", \"label\": \"changelog\"}"
       net.unraid.docker.icon: "https://github.com/dgtlmoon/changedetection.io/blob/master/changedetectionio/static/favicons/android-chrome-256x256.png?raw=true"
