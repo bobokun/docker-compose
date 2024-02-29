@@ -157,7 +157,7 @@ services:
       interval: 30s
       retries: 5
       timeout: 5s
-    image: tensorchord/pgvecto-rs:pg14-v0.1.11
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
     labels:
       org.hotio.pullio.notify: true
       org.hotio.pullio.update: false
@@ -542,7 +542,7 @@ services:
       - ${CONF_PATH}/paperless-ngx/data:/usr/src/paperless/data
       - /mnt/user/Paperless/media:/usr/src/paperless/media
       - /mnt/user/Paperless/consume:/usr/src/paperless/consume
-      - /mnt/user/Paperless/export:/usr/src/paperless/export
+      - /mnt/user/backup/paperless-ngx:/usr/src/paperless/export
     environment:
       PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@redis:6379
       PAPERLESS_FILENAME_FORMAT: ${PAPERLESS_FILENAME_FORMAT}
