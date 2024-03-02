@@ -511,10 +511,36 @@ services:
     volumes:     
       - ${CONF_PATH}/immich:/config
       - ${PHOTOS_PATH}/immich/Immich:/photos
+  collabora:
+    <<: *base-network
+    container_name: collabora
+    image: collabora/code:latest
+    cap_add: 
+      - MKNOD
+    environment:
+      <<: *env
+      aliasgroup1: ${NEXTCLOUD_DOMAIN}
+      server_name: ${OFFICE_DOMAIN}
+      password: ${COLLABORA_PASSWORD}
+      username: ${COLLABORA_USER}
+      dictionaries: 'en_GB en_US'
+      extra_params: '--o:ssl.enable=true --o:ssl.termination=true --o:net.proto=IPv4'
+    ports:
+      - 9980:9980
+    labels:
+      <<: *pullio
+      org.hotio.pullio.author.avatar: "https://raw.githubusercontent.com/chvb/docker-templates/master/chvb/img/collabora.png"
+      org.hotio.pullio.author.url: "{\"link\": \"https://sdk.collaboraonline.com/docs/installation/CODE_Docker_image.html\", \"label\": \"changelog\"}"
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/chvb/docker-templates/master/chvb/img/collabora.png"
+      net.unraid.docker.webui: https://${IP}:9980/browser/dist/admin/admin.html
   nextcloud:
     <<: *base-network
     container_name: nextcloud
     image: lscr.io/linuxserver/nextcloud:latest
+    depends_on:
+      - postgresql14
+      - redis-nextcloud
+      - collabora
     environment:
       <<: *env
     ports:
