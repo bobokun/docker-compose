@@ -17,7 +17,28 @@ x-base-env: &env
 x-base-hotio: &hotio
   <<: *env
   TP_HOTIO: true
-
+x-base-hdd-devices: &hdd-devices
+  devices:
+    # - /dev/sda:/dev/sda
+    - /dev/sdb:/dev/sdb
+    - /dev/sdc:/dev/sdc
+    - /dev/sdd:/dev/sdd
+    - /dev/sde:/dev/sde
+    - /dev/sdf:/dev/sdf
+    - /dev/sdg:/dev/sdg
+    - /dev/sdh:/dev/sdh
+    - /dev/sdi:/dev/sdi
+    - /dev/sdj:/dev/sdj
+    - /dev/sdk:/dev/sdk
+    - /dev/sdl:/dev/sdl
+    - /dev/sdm:/dev/sdm
+    # - /dev/sdn:/dev/sdn
+    # - /dev/sdo:/dev/sdo
+    # - /dev/sdp:/dev/sdp
+    # - /dev/sdq:/dev/sdq
+    - /dev/nvme0n1:/dev/nvme0n1 # cache
+    - /dev/nvme1n1:/dev/nvme1n1 # cache
+    - /dev/nvme2n1:/dev/nvme2n1 # scratch
 services:
 # DATABASES
 
@@ -463,24 +484,43 @@ services:
     volumes:
       - ${CONF_PATH}/uptimekuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
-  # diskspeed:
-  #   container_name: diskspeed
-  #   image: jbartlett777/diskspeed
-  #   ports:
-  #     - 18888:8888/tcp
-  #   labels:
-  #     org.hotio.pullio.notify: true
-  #     org.hotio.pullio.update: true
-  #     org.hotio.pullio.generic.webhook: ${PULLIO_GENERIC_WEBHOOK}
-  #     org.hotio.pullio.author.avatar: "https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
-  #     # org.hotio.pullio.author.url: "{\"link\": \"https://github.com/Tecnativa/docker-socket-proxy/releases\", \"label\": \"changelog\"}"
-  #     net.unraid.docker.icon: "https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
-  #     net.unraid.docker.webui: http://${IP}:18888
-  #   network_mode: bridge
-  #   volumes:
-  #     - ${CONF_PATH}/DiskSpeed/:/tmp/DiskSpeed
-  #     - /mnt:/mnt/UNRAID
-  #     - /var/local/emhttp:/var/local/emhttp:ro
+  diskspeed:
+    container_name: diskspeed
+    image: jbartlett777/diskspeed
+    ports:
+      - 18888:8888/tcp
+    privileged: true
+    labels:
+      <<: *pullio
+      org.hotio.pullio.author.avatar: "https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
+      org.hotio.pullio.author.url: "{\"link\": \"https://forums.unraid.net/topic/70636-diskspeed-hddssd-benchmarking-unraid-6-version-2107\", \"label\": \"changelog\"}"
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/jbartlett777/DiskSpeed/master/DiskSpeed.png"
+      net.unraid.docker.webui: http://${IP}:18888
+    volumes:
+      - ${CONF_PATH}/DiskSpeed/:/tmp/DiskSpeed
+      - /mnt:/mnt/UNRAID
+      - /var/local/emhttp:/var/local/emhttp:ro
+  scrutiny:
+    container_name: scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - 8084:8080 # webapp
+      - 8086:8086 # influxDB admin
+    <<: *hdd-devices
+    labels:
+      <<: *pullio
+      org.hotio.pullio.author.avatar: "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/scrutiny.png"
+      org.hotio.pullio.author.url: "{\"link\": \"hhttps://github.com/AnalogJ/scrutiny/releases\", \"label\": \"changelog\"}"
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/scrutiny.png"
+      net.unraid.docker.webui: http://${IP}:8084
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ${CONF_PATH}/scrutiny/config:/opt/scrutiny/config
+      - ${CONF_PATH}/scrutiny/influxdb:/opt/scrutiny/influxdb
+      # - /dev/disk:/dev/disk:ro
+    
 # CLOUD
   immich:
     <<: *base-network
@@ -953,32 +993,11 @@ services:
       - ${CONF_PATH}/qbit_manage:/config
 # *Arrs
   notifiarr:
-    <<: *base-network
+    <<: [*base-network,*hdd-devices]
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
     container_name: notifiarr
-    devices:
-      - /dev/sda:/dev/sda
-      - /dev/sdb:/dev/sdb
-      - /dev/sdc:/dev/sdc
-      - /dev/sdd:/dev/sdd
-      - /dev/sde:/dev/sde
-      - /dev/sdf:/dev/sdf
-      - /dev/sdg:/dev/sdg
-      - /dev/sdh:/dev/sdh
-      - /dev/sdi:/dev/sdi
-      - /dev/sdj:/dev/sdj
-      - /dev/sdk:/dev/sdk
-      - /dev/sdl:/dev/sdl
-      - /dev/sdm:/dev/sdm
-      # - /dev/sdn:/dev/sdn
-      # - /dev/sdo:/dev/sdo
-      # - /dev/sdp:/dev/sdp
-      # - /dev/sdq:/dev/sdq
-      - /dev/nvme0n1:/dev/nvme0n1 # cache
-      - /dev/nvme1n1:/dev/nvme1n1 # cache
-      - /dev/nvme2n1:/dev/nvme2n1 # scratch
     environment:
       TZ: ${TZ}
       DN_API_KEY: ${DN_API_KEY}
