@@ -880,6 +880,22 @@ services:
     user: ${PUID}:${PGID}
     volumes:
       - ${CONF_PATH}/PlexMetaManager:/config
+  userscripts:
+    <<: *base-network
+    container_name: userscripts
+    environment:
+      <<: *env
+    image: ghcr.io/drazzilb08/userscripts:dev
+    labels:
+      <<: *pullio
+      # org.hotio.pullio.author.avatar: "https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager/master/docs/_static/favicon.png"
+      org.hotio.pullio.author.url: "{\"link\": \"https://github.com/Drazzilb08/userScripts/releases\", \"label\": \"changelog\"}"
+      # net.unraid.docker.icon: "https://raw.githubusercontent.com/meisnate12/Plex-Meta-Manager/master/docs/_static/favicon.png"
+    volumes:
+      - ${CONF_PATH}/userscripts:/config
+      - ${CONF_PATH}/userscripts/posters:/posters
+      - ${CONF_PATH}/PlexMetaManager/assets/:/pmm
+      - ${DATA_PATH}:/data
   tautulli:
     <<: *base-network
     container_name: tautulli
