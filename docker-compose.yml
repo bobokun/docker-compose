@@ -387,6 +387,7 @@ services:
       net.unraid.docker.icon: "https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
     depends_on:
       - authentik-server
+      - redis-authentik
     volumes:
       - ${CONF_PATH}/authentik/geoip:/geoip
       - ${CONF_PATH}/authentik/templates:/templates
@@ -409,6 +410,7 @@ services:
       net.unraid.docker.icon: "https://raw.githubusercontent.com/ibracorp/app-logos/main/authentik-worker/authentik_worker.png"
     depends_on:
       - authentik-server
+      - redis-authentik
     ports:
       - 389:3389/tcp
       - 636:6636/tcp
